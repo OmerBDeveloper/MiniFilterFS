@@ -19,61 +19,11 @@ Environment:
 #include <suppress.h>
 #include "AVHeader.h"
 
-#pragma prefast(disable:__WARNING_ENCODE_MEMBER_FUNCTION_POINTER, "Not valid for kernel mode drivers")
 
 
 PFLT_FILTER gFilterHandle;
 ULONG_PTR OperationStatusCtx = 1;
 
-#define PTDBG_TRACE_ROUTINES            0x00000001
-#define PTDBG_TRACE_OPERATION_STATUS    0x00000002
-
-ULONG gTraceFlags = 0;
-
-
-#define PT_DBG_PRINT( _dbgLevel, _string )          \
-	(FlagOn(gTraceFlags,(_dbgLevel)) ?              \
-		DbgPrint _string :                          \
-		((int)0))
-
-/*************************************************************************
-	Prototypes
-*************************************************************************/
-
-EXTERN_C_START
-
-DRIVER_INITIALIZE DriverEntry;
-NTSTATUS
-DriverEntry (
-	_In_ PDRIVER_OBJECT DriverObject,
-	_In_ PUNICODE_STRING RegistryPath
-	);
-
-NTSTATUS
-FsFilterInstanceSetup (
-	_In_ PCFLT_RELATED_OBJECTS FltObjects,
-	_In_ FLT_INSTANCE_SETUP_FLAGS Flags,
-	_In_ DEVICE_TYPE VolumeDeviceType,
-	_In_ FLT_FILESYSTEM_TYPE VolumeFilesystemType
-	);
-
-
-NTSTATUS
-FsFilterUnload (
-	_In_ FLT_FILTER_UNLOAD_FLAGS Flags
-	);
-
-
-
-
-
-
-
-EXTERN_C_END
-
-//
-//  Assign text sections for each routine.
-//
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(INIT, DriverEntry)
@@ -87,7 +37,7 @@ EXTERN_C_END
 CONST FLT_OPERATION_REGISTRATION Callbacks[] = {
 	{ IRP_MJ_CREATE,
 	  0,
-	  FsFilterPreOperation,
+	  AntiVirusPreReadOperation,
 	  NULL },
 
 
@@ -103,79 +53,25 @@ CONST FLT_REGISTRATION FilterRegistration = {
 	sizeof( FLT_REGISTRATION ),         //  Size
 	FLT_REGISTRATION_VERSION,           //  Version
 	0,                                  //  Flags
-
 	NULL,                               //  Context
 	Callbacks,                          //  Operation callbacks
-
-	FsFilterUnload,                    //  MiniFilterUnload
-
+	FsFilterUnload,                     //  MiniFilterUnload
 	NULL,								//  InstanceSetup
 	NULL,								//  InstanceQueryTeardown
 	NULL,								//  InstanceTeardownStart
 	NULL,								//  InstanceTeardownComplete
-
 	NULL,                               //  GenerateFileName
 	NULL,                               //  GenerateDestinationFileName
 	NULL                                //  NormalizeNameComponent
-
 };
 
-
-
-NTSTATUS
-FsFilterInstanceSetup (
-	_In_ PCFLT_RELATED_OBJECTS FltObjects,
-	_In_ FLT_INSTANCE_SETUP_FLAGS Flags,
-	_In_ DEVICE_TYPE VolumeDeviceType,
-	_In_ FLT_FILESYSTEM_TYPE VolumeFilesystemType
-	)
-/*++
-
-Routine Description:
-
-	This routine is called whenever a new instance is created on a volume. This
-	gives us a chance to decide if we need to attach to this volume or not.
-
-	If this routine is not defined in the registration structure, automatic
-	instances are always created.
-
-Arguments:
-
-	FltObjects - Pointer to the FLT_RELATED_OBJECTS data structure containing
-		opaque handles to this filter, instance and its associated volume.
-
-	Flags - Flags describing the reason for this attach request.
-
-Return Value:
-
-	STATUS_SUCCESS - attach
-	STATUS_FLT_DO_NOT_ATTACH - do not attach
-
---*/
-{
-	UNREFERENCED_PARAMETER( FltObjects );
-	UNREFERENCED_PARAMETER( Flags );
-	UNREFERENCED_PARAMETER( VolumeDeviceType );
-	UNREFERENCED_PARAMETER( VolumeFilesystemType );
-
-	PAGED_CODE();
-
-	PT_DBG_PRINT( PTDBG_TRACE_ROUTINES,
-				  ("FsFilter!FsFilterInstanceSetup: Entered\n") );
-
-	return STATUS_SUCCESS;
-}
 
 
 /*************************************************************************
 	MiniFilter initialization and unload routines.
 *************************************************************************/
 
-NTSTATUS
-DriverEntry (
-	_In_ PDRIVER_OBJECT DriverObject,
-	_In_ PUNICODE_STRING RegistryPath
-	)
+NTSTATUS DriverEntry (_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING RegistryPath)
 /*++
 
 Routine Description:
@@ -197,32 +93,23 @@ Return Value:
 
 --*/
 {
+	UNREFERENCED_PARAMETER(RegistryPath);
+
 	NTSTATUS status;
 
-	UNREFERENCED_PARAMETER( RegistryPath );
-
-	PT_DBG_PRINT( PTDBG_TRACE_ROUTINES,
-				  ("FsFilter!DriverEntry: Entered\n") );
-	DbgPrint("Hello FsMiniFilter Omer And Zohar");
-	//
 	//  Register with FltMgr to tell it our callback routines
-	//
-	status = FltRegisterFilter( DriverObject,
-								&FilterRegistration,
-								&gFilterHandle );
-
-	FLT_ASSERT( NT_SUCCESS( status ) );
+	status = FltRegisterFilter(DriverObject,
+							   &FilterRegistration,
+							   &gFilterHandle );
 
 	if (NT_SUCCESS( status )) {
 
-		//
 		//  Start filtering i/o
-		//
-
 		status = FltStartFiltering( gFilterHandle );
 
-		if (!NT_SUCCESS( status )) {
+		// TODO: add here debug print to see that the minifilter is loaded correctly
 
+		if (!NT_SUCCESS( status )) {
 			FltUnregisterFilter( gFilterHandle );
 		}
 	}
@@ -230,10 +117,7 @@ Return Value:
 	return status;
 }
 
-NTSTATUS
-FsFilterUnload (
-	_In_ FLT_FILTER_UNLOAD_FLAGS Flags
-	)
+NTSTATUS FsFilterUnload (_In_ FLT_FILTER_UNLOAD_FLAGS Flags)
 /*++
 
 Routine Description:
@@ -257,15 +141,8 @@ Return Value:
 
 	PAGED_CODE();
 
-	PT_DBG_PRINT( PTDBG_TRACE_ROUTINES,
-				  ("FsFilter!FsFilterUnload: Entered\n") );
-
 	FltUnregisterFilter( gFilterHandle );
 
 	return STATUS_SUCCESS;
 }
 
-
-/*************************************************************************
-	MiniFilter callback routines.
-*************************************************************************/

@@ -12,42 +12,16 @@ Prototypes
 
 EXTERN_C_START
 
+
 DRIVER_INITIALIZE DriverEntry;
-NTSTATUS
-DriverEntry(
-	_In_ PDRIVER_OBJECT DriverObject,
-	_In_ PUNICODE_STRING RegistryPath
-);
 
-NTSTATUS
-FsFilterInstanceSetup(
-	_In_ PCFLT_RELATED_OBJECTS FltObjects,
-	_In_ FLT_INSTANCE_SETUP_FLAGS Flags,
-	_In_ DEVICE_TYPE VolumeDeviceType,
-	_In_ FLT_FILESYSTEM_TYPE VolumeFilesystemType
-);
+NTSTATUS DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING RegistryPath);
 
+NTSTATUS FsFilterUnload(_In_ FLT_FILTER_UNLOAD_FLAGS Flags);
 
-NTSTATUS
-FsFilterUnload(
-	_In_ FLT_FILTER_UNLOAD_FLAGS Flags
-);
-
-FLT_PREOP_CALLBACK_STATUS
-FsFilterPreOperation(
-	_Inout_ PFLT_CALLBACK_DATA Data,
-	_In_ PCFLT_RELATED_OBJECTS FltObjects,
-	_Flt_CompletionContext_Outptr_ PVOID *CompletionContext
-);
-
-FLT_POSTOP_CALLBACK_STATUS FsFilterReadOperation(
-	PFLT_CALLBACK_DATA Data,
-	PCFLT_RELATED_OBJECTS FltObjects,
-	PVOID CompletionContext,
-	FLT_POST_OPERATION_FLAGS Flags
-);
-
-
+FLT_PREOP_CALLBACK_STATUS AntiVirusPreReadOperation(_Inout_ PFLT_CALLBACK_DATA Data,
+											   _In_ PCFLT_RELATED_OBJECTS FltObjects,
+											   _Flt_CompletionContext_Outptr_ PVOID *CompletionContext);
 
 EXTERN_C_END
 
