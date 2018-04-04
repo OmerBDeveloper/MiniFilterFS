@@ -17,6 +17,7 @@ Environment:
 #include <fltKernel.h>
 #include <dontuse.h>
 #include <suppress.h>
+#include "AVHeader.h"
 
 #pragma prefast(disable:__WARNING_ENCODE_MEMBER_FUNCTION_POINTER, "Not valid for kernel mode drivers")
 
@@ -62,12 +63,7 @@ FsFilterUnload (
 	_In_ FLT_FILTER_UNLOAD_FLAGS Flags
 	);
 
-FLT_PREOP_CALLBACK_STATUS
-FsFilterPreOperation (
-	_Inout_ PFLT_CALLBACK_DATA Data,
-	_In_ PCFLT_RELATED_OBJECTS FltObjects,
-	_Flt_CompletionContext_Outptr_ PVOID *CompletionContext
-	);
+
 
 
 

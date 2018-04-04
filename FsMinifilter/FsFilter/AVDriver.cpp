@@ -1,18 +1,18 @@
 #include "AVHeader.h"
 
 #define THREAT_REGEX L"*VIRUS*"
-
 UNICODE_STRING threatRegex = RTL_CONSTANT_STRING(THREAT_REGEX);
 
 
 
-bool isMaliciousFileName(PUNICODE_STRING fileName)
+
+bool isMaliciousString(PUNICODE_STRING fileName)
 {
 	bool isThreat = FsRtlIsNameInExpression(&threatRegex,
 		fileName,
 		TRUE,
 		NULL);
-	return true;
+	return isThreat;
 }
 
 FLT_PREOP_CALLBACK_STATUS
@@ -25,12 +25,11 @@ FsFilterPreOperation(
 	UNREFERENCED_PARAMETER(CompletionContext);
 	PUNICODE_STRING fileName = &FltObjects->FileObject->FileName;
 
-	bool isThreat = isMaliciousFileName(fileName);
+	bool isThreat = isMaliciousString(fileName);
 
 	if (isThreat)
 	{
 		DbgPrint("OHH NOOOOOOO VIRUS ALeRTTTTTTTTT");
-		FltCancelFileOpen(FltObjects->Instance, FltObjects->FileObject);
 		Data->IoStatus.Status = STATUS_VIRUS_INFECTED;
 		Data->IoStatus.Information = 0;
 		return FLT_PREOP_COMPLETE;
