@@ -93,8 +93,8 @@ NTSTATUS DriverEntry (_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING Reg
 
 		/************************************************************************/
 		/* STEP 1:																*
-		/*			Add a debug print with your name using DbgPrint function.	*
-		/*			Compile and test the driver.								*
+		/*		Add a debug print with your name using DbgPrint function.		*
+		/*		Compile and test the driver.									*
 		/*																		*
 		/************************************************************************/
 
@@ -103,6 +103,17 @@ NTSTATUS DriverEntry (_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING Reg
 		if (!NT_SUCCESS( status )) {
 			FltUnregisterFilter( gFilterHandle );
 		}
+
+		/************************************************************************/
+		/* STEP 4:																*
+		/*		Monitor registry operations and make sure that no value is		*
+		/*		to "virus".														*
+		/*		In order to monitor registry operations read about				*
+		/*		CmRegisterCallback												*
+		/************************************************************************/
+
+		// ENTER CODE HERE
+
 	}
 
 	return status;
