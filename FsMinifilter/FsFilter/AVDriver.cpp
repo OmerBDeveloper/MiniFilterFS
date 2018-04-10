@@ -8,7 +8,6 @@ bool IsThreatByFilename(PUNICODE_STRING fileName) {
 	/* STEP 2:																*
 	/*			This function should return true if the name of the file 	*
 	/*			is virus.exe.												*
-	/*			
 	/*																		*
 	/************************************************************************/
 
@@ -29,7 +28,7 @@ FLT_PREOP_CALLBACK_STATUS AntiVirusPreReadOperation(_Inout_ PFLT_CALLBACK_DATA D
 
 		/************************************************************************/
 		/* STEP 3:																*
-		/*		If we found a threat, we need to change the status of the		*
+		/*		If we found a threat, we need to change the iostatus of the		*
 		/*		request and return a value which indicates that we are done		*		
 		/*		and the request is complete.									*
 		/************************************************************************/
