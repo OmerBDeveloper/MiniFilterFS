@@ -1,17 +1,18 @@
 #pragma once
 
-
 #include <fltKernel.h>
 #include <dontuse.h>
 #include <suppress.h>
+#include <ntdef.h>
 
 
 /*************************************************************************
 Prototypes
 *************************************************************************/
 
-EXTERN_C_START
+bool IsThreatByFilename(PUNICODE_STRING fileName);
 
+EXTERN_C_START
 
 DRIVER_INITIALIZE DriverEntry;
 
@@ -24,4 +25,3 @@ FLT_PREOP_CALLBACK_STATUS AntiVirusPreReadOperation(_Inout_ PFLT_CALLBACK_DATA D
 											   _Flt_CompletionContext_Outptr_ PVOID *CompletionContext);
 
 EXTERN_C_END
-

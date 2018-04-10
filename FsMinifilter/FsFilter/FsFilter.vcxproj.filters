@@ -24,10 +24,10 @@
     </Inf>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FsFilter.c">
+    <ClCompile Include="AVDriver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AVDriver.cpp">
+    <ClCompile Include="FsFilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
